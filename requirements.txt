@@ -1,0 +1,9 @@
+numpy>=1.24.2
+pandas>=2.0.0
+matplotlib>=3.7.1
+opencv-python>=4.7.0.72
+astropy>=5.2.2
+Pillow>=9.5.0
+tqdm>=4.64.0
+tensorflow>=2.7.1
+dask>=2023.3.2
