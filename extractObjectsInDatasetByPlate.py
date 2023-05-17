@@ -13,7 +13,7 @@ from fnmatch import fnmatch
 from os import listdir, path as os_path
 import argparse
 from tqdm import tqdm
-from time import perf_counter
+# from time import perf_counter
 
 import warnings
 from astropy.utils.exceptions import AstropyUserWarning
@@ -194,7 +194,7 @@ def main():
     calculate_coordinates = True
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--mode', default='Train', choices=('Train', 'Test'))
+    parser.add_argument('--mode', default='train', choices=('train', 'test'))
     parser.add_argument('--input_csv', default='Subtypes', choices=('Subtypes', 'Combined'))
     parser.add_argument('--output_path')
     parser.add_argument('--class_column', default='Sp type', choices=('Sp type', 'Cl'))
@@ -204,10 +204,15 @@ def main():
 
     args = parser.parse_args()
 
+    mode = args.mode
     data_root = args.data_root
     csv_name = args.input_csv
-    output_path = args.output_path or f'{data_root}/Plates/{csv_name}/{block_size}_{constant}'
     class_column = args.class_column
+    if mode == 'train':
+        output_path = args.output_path or f'{data_root}/Plates/{csv_name}/{block_size}_{constant}'
+    else:
+        output_path = args.output_path or f'{data_root}/Inference/{csv_name}/{block_size}_{constant}'
+
     fits_path = args.fits_path or os_path.join(data_root, 'fits_files')
     headers_path = args.headers_path or os_path.join(data_root, 'fits_headers')
 
@@ -247,30 +252,39 @@ def main():
     n_headers = len(fits_headers)
 
     print('Extracting objects by plate ...')
+
+    plates_dataset = pd.DataFrame(columns=data.columns)
+    plate_dir = output_path
+
+    if mode == 'test':
+        make_directory(f'{plate_dir}/{raw_folder}')
+
     for i in tqdm(range(n_headers)):
         plate = fits_headers[i].split('/')[-1].split('.')[0]
+        plate_num = plate.split('_')[0][3:]
 
         if plate in fits_set and plate in plates_containing_objects:
             ###################
-            t0 = perf_counter()
+            # t0 = perf_counter()
             ###################
-            plate_dir = os_path.join(output_path, plate)
-            make_directory(f'{plate_dir}/{raw_folder}')
-            for class_name in np.unique(data[class_column]):
-                make_directory(f'{plate_dir}/{classified_folder}/{class_name}')
+            if mode == 'train':
+                plate_dir = os_path.join(output_path, plate)
 
-            plate_dataset = pd.DataFrame(columns=data.columns)
+            if mode == 'train':
+                make_directory(f'{plate_dir}/{raw_folder}')
+                for class_name in np.unique(data[class_column]):
+                    make_directory(f'{plate_dir}/{classified_folder}/{class_name}')
 
             ###################
-            t1 = perf_counter()
-            print(f'Directory preparations: {t1 - t0}')
+            # t1 = perf_counter()
+            # print(f'Directory preparations: {t1 - t0}')
             ###################
 
             fbs_plate = fits.open(f'{fits_path}/{plate}.fits')
 
             ###################
-            t2 = perf_counter()
-            print(f'Opening fits: {t2 - t1}')
+            # t2 = perf_counter()
+            # print(f'Opening fits: {t2 - t1}')
             ###################
 
             plate_img = np.array(fbs_plate[0].data, dtype=np.uint16)
@@ -283,16 +297,16 @@ def main():
                 scaled_img = np.invert(scaled_img)
 
             ###################
-            t3 = perf_counter()
-            print(f'Scaling: {t3 - t2}')
+            # t3 = perf_counter()
+            # print(f'Scaling: {t3 - t2}')
             ###################
 
             gblur = cv.GaussianBlur(scaled_img, (3, 3), 2, 2)
             del scaled_img
 
             ###################
-            t4 = perf_counter()
-            print(f'Gaussian blurring: {t4 - t3}')
+            # t4 = perf_counter()
+            # print(f'Gaussian blurring: {t4 - t3}')
             ###################
 
             g_th = cv.adaptiveThreshold(gblur, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,
@@ -300,15 +314,15 @@ def main():
             del gblur
 
             ###################
-            t5 = perf_counter()
-            print(f'Thresholding: {t5 - t4}')
+            # t5 = perf_counter()
+            # print(f'Thresholding: {t5 - t4}')
             ###################
 
             plate_datapoints = getPlateCoordinates(coordinates[i], shape_x, shape_y)
 
             ###################
-            t6 = perf_counter()
-            print(f'Getting plate coordinates: {t6 - t5}')
+            # t6 = perf_counter()
+            # print(f'Getting plate coordinates: {t6 - t5}')
             ###################
 
             for pd_i in plate_datapoints:
@@ -332,18 +346,26 @@ def main():
                             'dy': dy,
                         })
 
-                        image_path = f'{plate_dir}/{raw_folder}/{pd_i}__{data.iloc[pd_i]["Name"]}.tiff'
-                        classes_path = f'{plate_dir}/{classified_folder}/{data.iloc[pd_i][class_column]}' \
-                                       f'/{pd_i}__{data.iloc[pd_i]["Name"]}.tiff'
+                        full_index = f'{plate_num}_{pd_i}'
 
-                        plate_dataset.loc[pd_i] = data.iloc[pd_i]
-                        plate_dataset.loc[pd_i, 'dx'] = dx
-                        plate_dataset.loc[pd_i, 'dy'] = dy
-                        plate_dataset.loc[pd_i, 'plate'] = plate
-                        plate_dataset.loc[pd_i, 'path'] = image_path
+                        if mode == 'train':
+                            image_path = f'{plate_dir}/{raw_folder}/{pd_i}__{data.iloc[pd_i]["Name"]}.tiff'
+
+                            classes_path = f'{plate_dir}/{classified_folder}/{data.iloc[pd_i][class_column]}' \
+                                           f'/{pd_i}__{data.iloc[pd_i]["Name"]}.tiff'
+
+                            cv.imwrite(classes_path, result)
+
+                        else:
+                            image_path = f'{plate_dir}/{raw_folder}/{full_index}__{data.iloc[pd_i]["Name"]}.tiff'
+
+                        plates_dataset.loc[full_index] = data.iloc[pd_i]
+                        plates_dataset.loc[full_index, 'dx'] = dx
+                        plates_dataset.loc[full_index, 'dy'] = dy
+                        plates_dataset.loc[full_index, 'plate'] = plate
+                        plates_dataset.loc[full_index, 'path'] = image_path
 
                         cv.imwrite(image_path, result)
-                        cv.imwrite(classes_path, result)
 
                         incorrect_datapoints.pop(pd_i, None)
                     else:
@@ -378,18 +400,25 @@ def main():
                                         'dy': y,
                                     })
 
-                                    image_path = f'{plate_dir}/{raw_folder}/{pd_i}__{data.iloc[pd_i]["Name"]}.tiff'
-                                    classes_path = f'{plate_dir}/{classified_folder}/{data.iloc[pd_i][class_column]}' \
-                                                   f'/{pd_i}__{data.iloc[pd_i]["Name"]}.tiff'
+                                    full_index = f'{plate_num}_{pd_i}'
 
-                                    plate_dataset.loc[pd_i] = data.iloc[pd_i]
-                                    plate_dataset.loc[pd_i, 'dx'] = dx
-                                    plate_dataset.loc[pd_i, 'dy'] = dy
-                                    plate_dataset.loc[pd_i, 'plate'] = plate
-                                    plate_dataset.loc[pd_i, 'path'] = image_path
+                                    if mode == 'train':
+                                        image_path = f'{plate_dir}/{raw_folder}/{pd_i}__{data.iloc[pd_i]["Name"]}.tiff'
+
+                                        classes_path = f'{plate_dir}/{classified_folder}/' \
+                                            f'{data.iloc[pd_i][class_column]}/{pd_i}__{data.iloc[pd_i]["Name"]}.tiff'
+
+                                        cv.imwrite(classes_path, result)
+                                    else:
+                                        image_path = f'{plate_dir}/{raw_folder}/{full_index}__{data.iloc[pd_i]["Name"]}.tiff'
+
+                                    plates_dataset.loc[full_index] = data.iloc[pd_i]
+                                    plates_dataset.loc[full_index, 'dx'] = dx
+                                    plates_dataset.loc[full_index, 'dy'] = dy
+                                    plates_dataset.loc[full_index, 'plate'] = plate
+                                    plates_dataset.loc[full_index, 'path'] = image_path
 
                                     cv.imwrite(image_path, result)
-                                    cv.imwrite(classes_path, result)
 
                                     incorrect_datapoints.pop(pd_i, None)
 
@@ -403,15 +432,16 @@ def main():
                             incorrect_datapoints[pd_i].append(plate)
 
             ###################
-            t7 = perf_counter()
-            print(f'Extracting: {t7 - t6}')
+            # t7 = perf_counter()
+            # print(f'Extracting: {t7 - t6}')
             ###################
 
-            plate_dataset.to_csv(f'{plate_dir}/extracted.csv')
+            ###################
+            # print(f'Saving csv: {perf_counter() - t7}')
+            ###################
 
-            ###################
-            print(f'Saving csv: {perf_counter() - t7}')
-            ###################
+    print('Hello')
+    plates_dataset.to_csv(f'{plate_dir}/extracted.csv')
 
     print()
     print('all_datapoints:', len(all_datapoints))
