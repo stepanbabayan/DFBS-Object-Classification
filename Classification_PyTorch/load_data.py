@@ -106,15 +106,19 @@ def load_images(path, batch_size, domain):
     data_loader = DataLoader(dataset=dataset, batch_size=batch_size,
                              shuffle=True, pin_memory=True, drop_last=True)
 
-    class_indices = [[] for _ in range(len(dataset.classes))]
-    for i in range(len(dataset)):
-        _, label = dataset[i]
-        class_indices[label].append(i)
+    if domain == 'inference':
+        return data_loader
+    else:
+        class_indices = [[] for _ in range(len(dataset.classes))]
+        for i in range(len(dataset)):
+            _, label = dataset[i]
+            class_indices[label].append(i)
 
-    class_proportions = []
-    for indices in class_indices:
-        class_proportions.append(len(indices) / len(dataset))
+        class_proportions = []
+        for indices in class_indices:
+            class_proportions.append(len(indices) / len(dataset))
 
-    print(f'Loading {len(dataset)} images from {path} is over.')
+        print(f'Loading {len(dataset)} images from {path} is over.')
 
-    return data_loader, dataset.class_to_idx, class_proportions
+        return data_loader, dataset.class_to_idx, class_proportions
+

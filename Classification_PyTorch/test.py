@@ -3,7 +3,7 @@ import torch.optim
 import load_data
 import models
 
-from sklearn.metrics import classification_report
+from sklearn.metrics import classification_report, confusion_matrix
 
 
 # Testing Device
@@ -41,10 +41,10 @@ def evaluate(dataloader, model, domain='test', classes=None, device=torch.device
 
     if domain == 'test':
         print(classification_report(y_gts, y_preds, zero_division=0, target_names=classes))
-        print(classes)
+        # print(classes)
         # Output the classification results with their quantities for the specified class
-        aaa = torch.Tensor(y_preds)[torch.where(torch.Tensor(y_gts) == classes['C Ba'])]
-        print(aaa.unique(return_counts=True))
+        # aaa = torch.Tensor(y_preds)[torch.where(torch.Tensor(y_gts) == classes['C Ba'])]
+        # print(aaa.unique(return_counts=True))
     return accuracy
 
 
