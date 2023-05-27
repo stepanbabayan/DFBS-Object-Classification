@@ -5,7 +5,6 @@ from torch.utils.tensorboard import SummaryWriter
 
 import time
 
-from test import evaluate
 from _helpers import print_training_logs
 
 
@@ -30,6 +29,8 @@ def train_model(net, **kwargs):
     device = kwargs['device']
 
     model_folder = kwargs['model_folder']
+
+    evaluate = kwargs['evaluate']
 
     ## Optimizer
     learning_rate = 0.001
