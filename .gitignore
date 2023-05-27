@@ -160,7 +160,9 @@ cython_debug/
 **/.idea/
 
 # Data
+runs/
 flagged/
+Checkpoint/
 
 # Files
 *.tiff
