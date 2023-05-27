@@ -1,10 +1,10 @@
-import torch
+# import torch
 from torch import flatten
 
 import torch.nn as nn
 import torch.nn.functional as F
 
-from einops.layers.torch import Rearrange
+# from einops.layers.torch import Rearrange
 
 # from MobileNetV2 import MobileNetV2
 # from ResNet import ResNet
