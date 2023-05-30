@@ -59,7 +59,7 @@ def main(config):
 
     print('\nTraining started:')
 
-    net = models.Model(num_classes=num_classes, input_shape=input_shape).to(device)
+    net = models.Model(num_classes=num_classes, input_shape=input_shape, arch='default').to(device)
     print(net)
 
     if load_model_path:

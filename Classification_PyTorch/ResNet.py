@@ -1,23 +1,3 @@
-"""
-Why ResNet?
-To understand the network as we add more layers, does it becomes more expressive of the
-task in hand or otherwise.
-Key idea of ResNet is adding more layers which acts as a Identity function, i.e. if our
-underlying mapping function which the network is trying to learn is F(x) = x, then instead
-of trying to learn F(x) with Conv layers between them, we can directly add an skip connection
-to tend the weight and biases of F(x) to zero. This is part of the explanation from D2L.
-Adding new layer led to ResNet Block in the ResNet Architecture.
-In ResNet block, in addition to typical Conv layers the authors introduce a parallel identity
-mapping skipping the conv layers to directly connect the input with output of conv layers.
-A such connection is termed as Skip Connection or Residual connection.
-Things to note while adding the skip connection to output conv block is the dimensions.Important
-to note, as mentioned earlier in NIN network, we can use 1x1 Conv to increase and decrease the
-dimension.
-Below is a ResNet18 architecture:
-There are 4 convolutional layers in each module (excluding the 1×1 convolutional layer).
-Together with the first 7×7 convolutional layer and the final fully-connected layer, there are
-18 layers in total. Therefore, this model is a ResNet-18.
-"""
 import torch.nn as nn
 from torch.nn import functional as F
 
@@ -57,7 +37,7 @@ def residualBlock(in_channel, out_channel, num_residuals, first_block=False):
 
 
 class ResNet(nn.Module):
-    def     __init__(self, input_channel, n_classes):
+    def __init__(self, input_channel, n_classes):
         super().__init__()
         self.b1 = nn.Sequential(
             nn.Conv2d(input_channel, 64, kernel_size=7, stride=2, padding=3),

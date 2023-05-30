@@ -1,13 +1,10 @@
-import torch
 from torch import flatten
 
 import torch.nn as nn
 import torch.nn.functional as F
 
-from einops.layers.torch import Rearrange
-
-# from MobileNetV2 import MobileNetV2
-# from ResNet import ResNet
+from MobileNetV2 import MobileNetV2
+from ResNet import ResNet
 
 
 class FeatureBlock(nn.Module):
@@ -297,14 +294,21 @@ class ClassifierBN(nn.Module):
 
 
 class Model(nn.Module):
-    def __init__(self, num_classes, input_shape):
+    def __init__(self, num_classes, input_shape, arch='default'):
         super(Model, self).__init__()
 
-        # self.classifier = ClassifierDefault(class_count=num_classes, input_shape=input_shape)
-        self.classifier = Classifier(num_classes, input_shape)
-        # self.classifier = ClassifierBN(num_classes=num_classes, input_shape=input_shape)
-        # self.classifier = MobileNetV2(input_channel=1, n_classes=num_classes)
-        # self.classifier = ResNet(input_channel=1, n_classes=num_classes)
+        assert arch in ['default', 'default_prev', 'default_bn', 'mobilenet', 'resnet']
+
+        if arch == 'default':
+            self.classifier = Classifier(num_classes, input_shape)
+        elif arch == 'default_bn':
+            self.classifier = ClassifierBN(num_classes=num_classes, input_shape=input_shape)
+        elif arch == 'default_prev':
+            self.classifier = ClassifierDefault(class_count=num_classes, input_shape=input_shape)
+        elif arch == 'mobilenet':
+            self.classifier = MobileNetV2(input_channel=1, n_classes=num_classes)
+        else:
+            self.classifier = ResNet(input_channel=1, n_classes=num_classes)
 
     def forward(self, input_i):
         res = self.classifier(input_i)

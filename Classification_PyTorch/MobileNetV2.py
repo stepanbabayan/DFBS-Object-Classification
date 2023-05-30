@@ -1,20 +1,3 @@
-"""
-MobileNetV2
-MobileNet architecture is built with the idea to make neural networks feasible on mobile devices.
-MobileNet introduces the idea of depth-wise separable convolution, which is depth-wise conv followed
-by point-wise conv.
-What's New
-With MobileNetV2, the architecture introduces the concept of inverted residual, where the residual
-connections are made between the bottleneck layers. The intermediate expansion layer uses lightweight
-depth-wise convolutions to filter features as a source of non-linearity.
-A traditional Residual Block has a wide -> narrow -> wide structure with the number of channels. The
-input has a high number of channels, which are compressed with a 1x1 convolution. The number of
-channels is then increased again with a 1x1 convolution so input and output can be added.
-In contrast, an Inverted Residual Block follows a narrow -> wide -> narrow approach, hence the inversion.
-We first widen with a 1x1 convolution, then use a 3x3 depth-wise convolution (which greatly reduces the
-number of parameters), then we use a 1x1 convolution to reduce the number of channels so input and output
-can be added.
-"""
 import torch.nn as nn
 import numpy as np
 import math
