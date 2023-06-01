@@ -39,9 +39,7 @@ def evaluate(dataloader, model, domain='test', classes=None, device=torch.device
     accuracy = round(100 * correct / total, ndigits=2)
     print(f'Accuracy of the network on the {domain} images: {accuracy} %')
 
-    if domain == 'inference':
-        return predicted
-    elif domain == 'test':
+    if domain == 'test':
         print(classification_report(y_gts, y_preds, zero_division=0, target_names=classes))
         # print(classes)
         # Output the classification results with their quantities for the specified class

@@ -14,43 +14,24 @@ test_device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 input_shape = (160, 50)
 
 
-def evaluate(dataloader, model, domain='test', classes=None, device=torch.device(test_device)):
-    correct = 0
-    total = 0
-
+def infer_evaluate(dataloader, model, classes=None, device=torch.device(test_device), return_predictions=True):
     with torch.no_grad():
         y_preds = []
-        y_gts = []
 
-        for batch_idx, (x, y) in enumerate(dataloader):
+        for batch_idx, (x, _) in enumerate(dataloader):
             x = x.to(device)
-            y = y.to(device)
 
             # calculate outputs by running images through the network
             outputs = model(x)
 
-            # _, predicted = torch.max(outputs.data, dim=1)
-            predicted = torch.argmax(outputs.data, dim=1)
-            total += y.size(0)
-            correct += (predicted == y).sum().item()
+            if return_predictions:
+                predicted = torch.argmax(outputs.data, dim=1)
+            else:
+                predicted = outputs.data
 
             y_preds.extend(predicted.cpu().numpy())
-            y_gts.extend(y.cpu().numpy())
 
-    accuracy = round(100 * correct / total, ndigits=2)
-    print(f'Accuracy of the network on the {domain} images: {accuracy} %')
-
-    if domain == 'inference':
-        return predicted
-    elif domain == 'test':
-        print('Classification report on evaluation set:\n')
-        print(classification_report(y_gts, y_preds, zero_division=0, target_names=classes))
-        # print(classes)
-        # Output the classification results with their quantities for the specified class
-        # aaa = torch.Tensor(y_preds)[torch.where(torch.Tensor(y_gts) == classes['C Ba'])]
-        # print(aaa.unique(return_counts=True))
-        return accuracy
-    return accuracy
+    return predicted
 
 
 def infer(device=test_device):
@@ -94,7 +75,7 @@ def infer(device=test_device):
     net.load_state_dict(torch.load(checkpoint_path))
     net.eval()
 
-    evaluate(dataloader=infer_data, model=net, domain='inference', device=device)
+    infer_evaluate(dataloader=infer_data, model=net, device=device)
 
 
 if __name__ == "__main__":
