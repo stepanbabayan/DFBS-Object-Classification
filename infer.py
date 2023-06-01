@@ -31,7 +31,7 @@ def infer_evaluate(dataloader, model, classes=None, device=torch.device(test_dev
 
             y_preds.extend(predicted.cpu().numpy())
 
-    return predicted
+    return y_preds
 
 
 def infer(device=test_device):
