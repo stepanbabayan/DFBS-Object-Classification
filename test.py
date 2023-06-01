@@ -68,8 +68,8 @@ def run_test(device=test_device):
     train_dir = f'{data_root}/train'
     test_dir = f'{data_root}/test'
 
-    train_data, _, _ = load_data.load_images(train_dir, 1, 'train')
-    test_data, test_classes, _ = load_data.load_images(test_dir, 1, 'test')
+    train_data, _, _ = load_data.load_images(train_dir, 1, 'train', _drop_last=False)
+    test_data, test_classes, _ = load_data.load_images(test_dir, 1, 'test', _drop_last=False)
 
     net = models.Model(num_classes=num_classes, input_shape=input_shape).to(device)
     net.load_state_dict(torch.load(checkpoint_path))
