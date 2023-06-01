@@ -40,15 +40,16 @@ def evaluate(dataloader, model, domain='test', classes=None, device=torch.device
     accuracy = round(100 * correct / total, ndigits=2)
     print(f'Accuracy of the network on the {domain} images: {accuracy} %')
 
-    if domain == 'test':
-        print(classification_report(y_gts, y_preds, zero_division=0, target_names=classes))
-        print(classes)
-        # Output the classification results with their quantities for the specified class
-        aaa = torch.Tensor(y_preds)[torch.where(torch.Tensor(y_gts) == classes['C Ba'])]
-        print(aaa.unique(return_counts=True))
-
     if domain == 'inference':
         return predicted
+    elif domain == 'test':
+        print('Classification report on evaluation set:\n')
+        print(classification_report(y_gts, y_preds, zero_division=0, target_names=classes))
+        # print(classes)
+        # Output the classification results with their quantities for the specified class
+        # aaa = torch.Tensor(y_preds)[torch.where(torch.Tensor(y_gts) == classes['C Ba'])]
+        # print(aaa.unique(return_counts=True))
+        return accuracy
     return accuracy
 
 
