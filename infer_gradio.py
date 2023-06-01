@@ -75,7 +75,7 @@ def test_model(
     df = pd.read_csv(dataset_file)
 
     # Create PyTorch DataLoader object for test set
-    infer_data = load_data.load_images(path=data_root, batch_size=batch_size, domain='inference')
+    infer_data = load_data.load_images(path=data_root, batch_size=batch_size, domain='inference', _drop_last=False)
 
     # Create list to store predicted classes
     predicted_classes = []

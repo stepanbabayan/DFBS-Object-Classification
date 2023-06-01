@@ -54,8 +54,8 @@ def main(config):
     # load_model_path = f'{checkpoints_dir}/5.pth'
 
     train_data, train_classes, train_proportions = load_data.load_images(train_dir, train_batch_size, 'train')
-    val_data, val_classes, _ = load_data.load_images(val_dir, val_batch_size, 'val') if val_dir else (None, None, None)
-    test_data, test_classes, _ = load_data.load_images(test_dir, test_batch_size, 'test') if test_dir else (None, None, None)
+    val_data, val_classes, _ = load_data.load_images(val_dir, val_batch_size, 'val', _drop_last=False) if val_dir else (None, None, None)
+    test_data, test_classes, _ = load_data.load_images(test_dir, test_batch_size, 'test', _drop_last=False) if test_dir else (None, None, None)
 
     print('\nTraining started:')
 
