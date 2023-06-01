@@ -91,14 +91,14 @@ def load_images(path, batch_size, domain, _drop_last=True, _shuffle=True):
             T.ColorJitter(brightness=0.2, contrast=0.5),
             WidthShift(fraction=0.2),
             HeightShift(fraction=0.2),
-            T.Resize(size=(140, 20)),
+            T.Resize(size=(140, 20), antialias=True),
             ZFill(max_height=160, max_width=50),
         ])
     else:
         transform = T.Compose([
             T.ToTensor(),
             T.ConvertImageDtype(torch.float32),
-            T.Resize(size=(140, 20)),
+            T.Resize(size=(140, 20), antialias=True),
             ZFill(max_height=160, max_width=50),
         ])
 
