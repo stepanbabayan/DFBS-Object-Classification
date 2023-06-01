@@ -57,7 +57,7 @@ def infer(device=test_device):
     parser.add_argument('--data_root', default='data/Inference/Subtypes/19_2/images')
     parser.add_argument('--ckpt_path',
                         default='Classification_PyTorch/Checkpoint/Dense_6_High_Focal_25_3_Final/136.pth')
-    parser.add_argument('--num_classes', default=6, choices=(5, 6, 10))
+    parser.add_argument('--num_classes', default=10, choices=(5, 6, 10))
     parser.add_argument('--batch_size', default=128)
 
     # parser.add_argument('--class_column', default='Sp type', choices=('Sp type', 'Cl'))
