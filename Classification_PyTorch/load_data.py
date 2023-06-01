@@ -81,7 +81,7 @@ class WidthShift:
         return img
 
 
-def load_images(path, batch_size, domain):
+def load_images(path, batch_size, domain, _drop_last=True, _shuffle=True):
     if domain == 'train':
         transform = T.Compose([
             T.ToTensor(),
@@ -104,7 +104,7 @@ def load_images(path, batch_size, domain):
 
     dataset = ImageFolder(path, transform=transform, loader=load_image)
     data_loader = DataLoader(dataset=dataset, batch_size=batch_size,
-                             shuffle=True, pin_memory=True, drop_last=True)
+                             shuffle=_shuffle, pin_memory=True, drop_last=_drop_last)
 
     if domain == 'inference':
         return data_loader
