@@ -87,7 +87,7 @@ def infer(device=test_device):
     # checkpoint_path = './Checkpoint/Orig_6_High/105.pth'
     # data_root = '/home/sargis/Datasets/Stepan/DFBS_Combine_6_High'
 
-    infer_data = load_data.load_images(path=infer_dir, batch_size=batch_size, domain='inference')
+    infer_data = load_data.load_images(path=infer_dir, batch_size=batch_size, domain='inference', _drop_last=False)
 
     net = models.Model(num_classes=num_classes, input_shape=input_shape).to(device)
     net.load_state_dict(torch.load(checkpoint_path))
